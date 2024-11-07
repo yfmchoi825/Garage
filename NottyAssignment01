@@ -1,0 +1,84 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "authorship_tag": "ABX9TyNkhX/HCLgk8k3GriJmiLFg",
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/yfmchoi825/Garage/blob/master/NottyAssignment01\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 1,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "nLVMim-kop6J",
+        "outputId": "3a6a8ce0-3d3c-4857-eb91-e97148844d51"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "True\n"
+          ]
+        }
+      ],
+      "source": [
+        "def verify_cards(cards):\n",
+        "    valid_colors = {'red', 'blue', 'green', 'yellow'}\n",
+        "    card_count = {}\n",
+        "\n",
+        "    for card in cards:\n",
+        "        parts = card.split()\n",
+        "\n",
+        "        # Check if the card is formatted correctly\n",
+        "        if len(parts) != 2:\n",
+        "            return False\n",
+        "\n",
+        "        color, number_str = parts\n",
+        "        # Check if color is valid and number is an integer between 1 and 10\n",
+        "        if color not in valid_colors or not number_str.isdigit():\n",
+        "            return False\n",
+        "\n",
+        "        number = int(number_str)\n",
+        "        if number < 1 or number > 10:\n",
+        "            return False\n",
+        "\n",
+        "        # Track the count of each (color, number) combination\n",
+        "        card_tuple = (color, number)\n",
+        "        card_count[card_tuple] = card_count.get(card_tuple, 0) + 1\n",
+        "\n",
+        "        # Ensure no more than two of the same card\n",
+        "        if card_count[card_tuple] > 2:\n",
+        "            return False\n",
+        "\n",
+        "    return True\n",
+        "\n",
+        "# Example usage\n",
+        "print(verify_cards([\"red 1\", \"blue 3\", \"green 4\", \"red 1\", \"yellow 10\", \"blue 3\"]))  # Expected: True\n"
+      ]
+    }
+  ]
+}
