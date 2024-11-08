@@ -1,84 +1,131 @@
-{
-  "nbformat": 4,
-  "nbformat_minor": 0,
-  "metadata": {
-    "colab": {
-      "provenance": [],
-      "authorship_tag": "ABX9TyNkhX/HCLgk8k3GriJmiLFg",
-      "include_colab_link": true
-    },
-    "kernelspec": {
-      "name": "python3",
-      "display_name": "Python 3"
-    },
-    "language_info": {
-      "name": "python"
-    }
-  },
-  "cells": [
-    {
-      "cell_type": "markdown",
-      "metadata": {
-        "id": "view-in-github",
-        "colab_type": "text"
-      },
-      "source": [
-        "<a href=\"https://colab.research.google.com/github/yfmchoi825/Garage/blob/master/NottyAssignment01\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
-      ]
-    },
-    {
-      "cell_type": "code",
-      "execution_count": 1,
-      "metadata": {
-        "colab": {
-          "base_uri": "https://localhost:8080/"
-        },
-        "id": "nLVMim-kop6J",
-        "outputId": "3a6a8ce0-3d3c-4857-eb91-e97148844d51"
-      },
-      "outputs": [
-        {
-          "output_type": "stream",
-          "name": "stdout",
-          "text": [
-            "True\n"
-          ]
-        }
-      ],
-      "source": [
-        "def verify_cards(cards):\n",
-        "    valid_colors = {'red', 'blue', 'green', 'yellow'}\n",
-        "    card_count = {}\n",
-        "\n",
-        "    for card in cards:\n",
-        "        parts = card.split()\n",
-        "\n",
-        "        # Check if the card is formatted correctly\n",
-        "        if len(parts) != 2:\n",
-        "            return False\n",
-        "\n",
-        "        color, number_str = parts\n",
-        "        # Check if color is valid and number is an integer between 1 and 10\n",
-        "        if color not in valid_colors or not number_str.isdigit():\n",
-        "            return False\n",
-        "\n",
-        "        number = int(number_str)\n",
-        "        if number < 1 or number > 10:\n",
-        "            return False\n",
-        "\n",
-        "        # Track the count of each (color, number) combination\n",
-        "        card_tuple = (color, number)\n",
-        "        card_count[card_tuple] = card_count.get(card_tuple, 0) + 1\n",
-        "\n",
-        "        # Ensure no more than two of the same card\n",
-        "        if card_count[card_tuple] > 2:\n",
-        "            return False\n",
-        "\n",
-        "    return True\n",
-        "\n",
-        "# Example usage\n",
-        "print(verify_cards([\"red 1\", \"blue 3\", \"green 4\", \"red 1\", \"yellow 10\", \"blue 3\"]))  # Expected: True\n"
-      ]
-    }
-  ]
-}
+def verify_cards(cards):
+    valid_colors = {'red', 'blue', 'green', 'yellow'}
+    card_count = {}
+
+    for card in cards:
+        parts = card.split()
+        
+        # Check if the card is formatted correctly
+        if len(parts) != 2:
+            return False
+        
+        color, number_str = parts
+        # Check if color is valid and number is an integer between 1 and 10
+        if color not in valid_colors or not number_str.isdigit():
+            return False
+        
+        number = int(number_str)
+        if number < 1 or number > 10:
+            return False
+
+        # Track the count of each (color, number) combination
+        card_tuple = (color, number)
+        card_count[card_tuple] = card_count.get(card_tuple, 0) + 1
+
+        # Ensure no more than two of the same card
+        if card_count[card_tuple] > 2:
+            return False
+
+    return True
+
+# Example usage
+print(verify_cards(["red 1", "blue 3", "green 4", "red 1", "yellow 10", "blue 3"]))  # Expected: True
+
+# Temporary definition of Card class for testing purposes
+# REMOVE THIS CLASS DEFINITION BEFORE SUBMITTING
+class Card: 
+    def __init__(self, colour, number): 
+        assert isinstance(number, int)
+        self.colour = colour 
+        self.number = number 
+
+    def __str__(self): 
+        return f'{self.colour} {self.number}'
+
+class CollectionOfCards:
+    def __init__(self, card_strings):
+        self.collection = [Card(*card.split()) for card in card_strings]
+
+    def is_valid_group(self):
+        if len(self.collection) < 3:
+            return False
+        
+        # Check for a sequence of the same color
+        same_color = all(card.colour == self.collection[0].colour for card in self.collection)
+        if same_color:
+            numbers = sorted(card.number for card in self.collection)
+            return all(numbers[i] == numbers[i - 1] + 1 for i in range(1, len(numbers)))
+
+        # Check for a set with the same number but different colors
+        same_number = all(card.number == self.collection[0].number for card in self.collection)
+        unique_colors = len(set(card.colour for card in self.collection)) == len(self.collection)
+        return same_number and unique_colors
+
+    def find_valid_group(self):
+        if self.is_valid_group():
+            return self.collection
+        return None
+
+    def find_largest_valid_group(self):
+        max_group = None
+        max_size = 0
+        for i in range(len(self.collection)):
+            for j in range(i + 3, len(self.collection) + 1):
+                sub_group = CollectionOfCards([str(card) for card in self.collection[i:j]])
+                if sub_group.is_valid_group() and len(sub_group.collection) > max_size:
+                    max_group = sub_group.collection
+                    max_size = len(sub_group.collection)
+        return max_group
+
+# Example of creating a collection
+cards = ["red 1", "red 2", "red 3", "blue 4", "green 4", "yellow 4"]
+collection = CollectionOfCards(cards)
+print(collection.is_valid_group())  # Check if all cards form a valid group
+
+def probability_of_valid_group(player_hands):
+    # Step 1: Check if the first player's hand already has a valid group
+    first_player_hand = player_hands[0]
+    
+    # If a valid group already exists in the first player's hand, return probability 1
+    if first_player_hand.find_valid_group():
+        return 1.0
+
+    # Step 2: Count all cards that are already in play (i.e., held by players)
+    all_cards_in_play = []
+    for hand in player_hands:
+        all_cards_in_play += hand.collection  # This works but can be inefficient
+
+    # Step 3: Set up all possible cards and mark how many are still in the deck
+    colors = ['red', 'blue', 'green', 'yellow']
+    deck_cards = {}  # Stores how many of each card is left in the deck
+
+    for color in colors:
+        for number in range(1, 11):
+            deck_cards[(color, number)] = 2  # Start with 2 of each card
+
+    # Step 4: Subtract cards in play from the deck count
+    for card in all_cards_in_play:
+        if deck_cards[(card.colour, card.number)] > 0:  # Defensive check
+            deck_cards[(card.colour, card.number)] -= 1
+
+    # Step 5: Create a list of remaining cards in the deck
+    possible_draws = []
+    for (color, number), count in deck_cards.items():
+        for _ in range(count):  # Adding each card that's still available
+            possible_draws.append(Card(color, number))
+
+    # Step 6: Count valid outcomes for drawing one card
+    valid_draw_count = 0
+    for card in possible_draws:
+        # Try adding each possible card to the first player's hand to see if it forms a valid group
+        test_hand = CollectionOfCards([str(c) for c in first_player_hand.collection] + [str(card)])
+
+        # Beginner mistake: Assuming find_valid_group always returns True/False
+        if test_hand.find_valid_group() == True:  # Redundant `== True`
+            valid_draw_count += 1
+
+    # Step 7: Calculate probability
+    if len(possible_draws) == 0:  # Avoid dividing by zero
+        return 0.0
+    else:
+        return valid_draw_count / len(possible_draws)  # Might miss cases if possible_draws is empty
